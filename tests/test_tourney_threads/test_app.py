@@ -25,9 +25,13 @@ class TestVersionAndEntryPoints:
 
     def test_app_if_name_main_block(self):
         """Test app.py if __name__ == '__main__' block."""
+        from pathlib import Path
+
         # Run app.py as a script using python to trigger if __name__ == "__main__"
+        repo_root = Path(__file__).resolve().parents[2]
+        app_path = repo_root / "src" / "tourney_threads" / "app.py"
         result = subprocess.run(
-            [sys.executable, r"C:\devl\tourney_threads\src\tourney_threads\app.py", "--help"],
+            [sys.executable, str(app_path), "--help"],
             capture_output=True,
             timeout=2,
         )

@@ -391,13 +391,16 @@ challonge:
         """Test CLI --help displays usage information."""
         import subprocess
         import sys
+        from pathlib import Path
 
         # Run CLI with --help
+        repo_root = Path(__file__).resolve().parents[3]
+        src_dir = repo_root / "src"
         result = subprocess.run(
             [sys.executable, "-m", "tourney_threads.cli", "--help"],
             capture_output=True,
             timeout=5,
-            cwd=r"C:\devl\tourney_threads\src",
+            cwd=str(src_dir),
         )
 
         # Should exit successfully and show usage

@@ -165,13 +165,16 @@ challonge:
         """Test CLI if __name__ == '__main__' block by running as module."""
         import subprocess
         import sys
+        from pathlib import Path
 
         # Run the module as a script using python -m to trigger if __name__ == "__main__"
+        repo_root = Path(__file__).resolve().parents[2]
+        src_dir = repo_root / "src"
         result = subprocess.run(
             [sys.executable, "-m", "tourney_threads.cli", "--help"],
             capture_output=True,
             timeout=2,
-            cwd=r"C:\devl\tourney_threads\src",
+            cwd=str(src_dir),
         )
         # --help should work and return 0
         assert result.returncode == 0
