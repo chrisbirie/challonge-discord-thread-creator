@@ -6,7 +6,7 @@ This module provides utilities for generating human-readable round labels.
 from typing import Any
 
 
-def make_round_label(round_value: int, stage_name: str | None, config: dict[str, Any]) -> str:
+def make_round_label(round_value: int | str | None, stage_name: str | None, config: dict[str, Any]) -> str:
     """Generate a human-readable round label.
 
     If config contains 'round_label_template', formats it with:
