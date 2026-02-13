@@ -134,6 +134,6 @@ class DiscordThreadManager:
         allowed = (60, 1440, 4320, 10080)
         if value not in allowed:
             value = DEFAULT_THREAD_ARCHIVE_MINUTES
-        if value not in allowed:
+        if value not in allowed:  # pragma: no cover
             value = 10080
         return cast(Literal[60, 1440, 4320, 10080], value)

@@ -453,3 +453,65 @@ class TestChallongeAPIClient:
         # Verify debug output contains truncated text
         assert "[debug]" in captured.out
         assert "tournament stage probe failed" in captured.out
+
+    @pytest.mark.asyncio
+    async def test_fetch_matches_with_state_filter(self):
+        """Test fetch_matches with state filter parameter from config."""
+        config = {
+            "oauth2": {"client_id": "test_id", "client_secret": "test_secret"},
+            "challonge": {
+                "tournament": "test-tournament",
+                "page": 1,
+                "per_page": 25,
+                "state": "complete",  # Add state to config
+            },
+        }
+        client = ChallongeAPIClient(config, debug=False)
+
+        # Mock the OAuth client
+        mock_oauth = MagicMock()
+        mock_oauth.get_token = AsyncMock(return_value="test_token")
+        client._oauth_client = mock_oauth
+
+        # Mock API response
+        api_response = {
+            "data": [
+                {
+                    "id": "1",
+                    "attributes": {"state": "complete", "round": 1},
+                    "relationships": {
+                        "player1": {"data": {"id": "p1"}},
+                        "player2": {"data": {"id": "p2"}},
+                    },
+                }
+            ],
+            "included": [
+                {"type": "participant", "id": "p1", "attributes": {"username": "Alice"}},
+                {"type": "participant", "id": "p2", "attributes": {"username": "Bob"}},
+            ],
+        }
+
+        mock_resp = MagicMock()
+        mock_resp.status = 200
+        mock_resp.text = AsyncMock(return_value="{}")
+        mock_resp.json = AsyncMock(return_value=api_response)
+
+        mock_get_cm = MagicMock()
+        mock_get_cm.__aenter__ = AsyncMock(return_value=mock_resp)
+        mock_get_cm.__aexit__ = AsyncMock(return_value=None)
+
+        mock_session_cm = MagicMock()
+        mock_session_instance = MagicMock()
+        mock_session_instance.get = MagicMock(return_value=mock_get_cm)
+        mock_session_cm.__aenter__ = AsyncMock(return_value=mock_session_instance)
+        mock_session_cm.__aexit__ = AsyncMock(return_value=None)
+
+        with patch("aiohttp.ClientSession", return_value=mock_session_cm):
+            matches, _ = await client.fetch_matches(runner_map={})
+
+        # Verify the session.get was called with state in params
+        call_args = mock_session_instance.get.call_args
+        assert call_args is not None
+        assert call_args[1]["params"]["state"] == "complete"
+        assert len(matches) == 1
+        assert matches[0].state == "complete"

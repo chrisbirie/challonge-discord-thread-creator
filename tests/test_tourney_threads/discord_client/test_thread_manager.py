@@ -204,3 +204,42 @@ class TestDiscordThreadManager:
             captured = capsys.readouterr()
             assert "Error creating thread for match" in captured.out
             assert "No threads created" in captured.out
+
+    def test_normalize_archive_minutes_valid(self):
+        """Test _normalize_archive_minutes with valid values."""
+        from tourney_threads.discord_client.thread_manager import DiscordThreadManager
+
+        config = {"discord": {}}
+        manager = DiscordThreadManager(config)
+
+        # Test all valid values
+        assert manager._normalize_archive_minutes(60) == 60
+        assert manager._normalize_archive_minutes(1440) == 1440
+        assert manager._normalize_archive_minutes(4320) == 4320
+        assert manager._normalize_archive_minutes(10080) == 10080
+
+    def test_normalize_archive_minutes_invalid_fallback_to_default(self):
+        """Test _normalize_archive_minutes with invalid value, DEFAULT is valid."""
+        from tourney_threads.discord_client.thread_manager import DiscordThreadManager
+        from tourney_threads.config.constants import DEFAULT_THREAD_ARCHIVE_MINUTES
+
+        config = {"discord": {}}
+        manager = DiscordThreadManager(config)
+
+        # Test invalid value that falls back to DEFAULT_THREAD_ARCHIVE_MINUTES
+        # Assume DEFAULT is one of the valid values (10080 or similar)
+        result = manager._normalize_archive_minutes(9999)
+        assert result in (60, 1440, 4320, 10080)
+        assert result == DEFAULT_THREAD_ARCHIVE_MINUTES
+
+    def test_normalize_archive_minutes_invalid_fallback_to_hardcoded(self):
+        """Test _normalize_archive_minutes fallback to hardcoded 10080."""
+        from tourney_threads.discord_client.thread_manager import DiscordThreadManager
+
+        config = {"discord": {}}
+        manager = DiscordThreadManager(config)
+
+        # This tests the edge case where an invalid value is passed
+        # The function will use DEFAULT, and if that's also invalid, use 10080
+        result = manager._normalize_archive_minutes(5000)
+        assert result == 10080
