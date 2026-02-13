@@ -1,16 +1,191 @@
-name: pytest
+name: CI
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  test:
+  lint-and-format:
+    name: Code Quality (Lint & Format)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: pip install -r requirements.txt pytest
-      - run: pytest -q
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt', 'pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+          pip install ruff black isort mypy
+      
+      - name: Run Ruff (linter)
+        run: ruff check src/ tests/ --output-format=github
+        continue-on-error: false
+      
+      - name: Check Black formatting
+        run: black --check src/ tests/
+      
+      - name: Check import sorting (isort)
+        run: isort --check-only src/ tests/
+      
+      - name: Type checking with mypy
+        run: mypy src/ --ignore-missing-imports
+        continue-on-error: true  # Type hints are helpful but not blocking
+
+  security:
+    name: Security Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+          pip install bandit safety
+      
+      - name: Run Bandit (security linter)
+        run: bandit -r src/ -f json -o bandit-report.json
+        continue-on-error: true
+      
+      - name: Check for known vulnerabilities (safety)
+        run: safety check --json
+        continue-on-error: true
+      
+      - name: Upload security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: |
+            bandit-report.json
+          if-no-files-found: ignore
+
+  test:
+    name: Tests (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.10', '3.11', '3.12']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('requirements.txt', 'pyproject.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-${{ matrix.python-version }}-
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+          pip install pytest pytest-asyncio pytest-cov
+      
+      - name: Run tests with coverage
+        run: pytest tests/ --cov=src/tourney_threads --cov-report=xml --cov-report=term --cov-fail-under=95 -v
+      
+      - name: Upload coverage to Codecov
+        if: matrix.python-version == '3.11'
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+  build:
+    name: Build Package
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, test]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install build dependencies
+        run: |
+          pip install --upgrade pip
+          pip install build twine
+      
+      - name: Build package
+        run: python -m build
+      
+      - name: Check package
+        run: twine check dist/*
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-packages
+          path: dist/
+
+  integration-test:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [lint-and-format]
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e .
+          pip install pytest pytest-asyncio
+      
+      - name: Run integration tests
+        run: pytest tests/test_tourney_threads/integration/ tests/test_tourney_threads/e2e/ -v
+
+  all-checks-passed:
+    name: All Checks Passed
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, security, test, build, integration-test]
+    if: always()
+    steps:
+      - name: Check if all jobs passed
+        run: |
+          if [ "${{ needs.lint-and-format.result }}" != "success" ] || \
+             [ "${{ needs.test.result }}" != "success" ] || \
+             [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.integration-test.result }}" != "success" ]; then
+            echo "One or more jobs failed"
+            exit 1
+          fi
+          echo "All checks passed!"
