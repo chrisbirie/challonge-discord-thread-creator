@@ -36,7 +36,8 @@ tourney-threads
 
 📚 **Complete documentation is available in the [docs/](docs/) directory:**
 
-- **[Installation Guide](docs/INSTALLATION.md)** - Detailed setup, prerequisites, Discord/Challonge configuration
+- **[Installation Guide](docs/INSTALLATION.md)** - Detailed setup and prerequisites
+- **[Credentials & IDs Setup](docs/CREDENTIALS.md)** - How to get OAuth2, bot token, Discord IDs
 - **[Configuration Reference](docs/CONFIGURATION.md)** - Complete guide to all config options with examples
 - **[Usage Guide](docs/USAGE.md)** - CLI reference, common workflows, automation
 - **[Template Variables](docs/TEMPLATES.md)** - Customize thread names and messages

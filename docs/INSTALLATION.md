@@ -8,24 +8,17 @@ This guide covers how to install and set up the Challonge Discord Thread Creator
 - **Discord Bot** with appropriate permissions
 - **Challonge OAuth2 Credentials** (client ID and secret)
 
-### Getting Challonge OAuth2 Credentials
+### Getting Credentials
 
-1. Log in to [Challonge](https://challonge.com)
-2. Go to Settings → Developer Settings → OAuth Applications
-3. Create a new OAuth application
-4. Save your Client ID and Client Secret
+📚 **See the [Credentials & IDs Setup Guide](CREDENTIALS.md) for detailed instructions on obtaining:**
+- Challonge OAuth2 client ID and secret
+- Discord bot token
+- Discord channel ID
+- Discord user IDs (for player mapping)
+- Discord role IDs (for role mentions)
+- Challonge tournament slug
 
-### Discord Bot Setup
-
-1. Go to [Discord Developer Portal](https://discord.com/developers/applications)
-2. Create a new application
-3. Navigate to "Bot" and create a bot
-4. Copy the bot token
-5. Enable "Message Content Intent" if you need it
-6. Invite the bot to your server with these permissions:
-   - Send Messages
-   - Create Public Threads
-   - Mention @everyone, @here, and All Roles (if using role mentions)
+This guide walks you through each step with screenshots and common issues.
 
 ## Installation Methods
 

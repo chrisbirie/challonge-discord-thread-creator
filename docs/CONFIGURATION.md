@@ -2,6 +2,11 @@
 
 Complete guide to configuring the Challonge Discord Thread Creator.
 
+📚 **Quick Links:**
+- **[How to Get Credentials & IDs](CREDENTIALS.md)** - Detailed steps for obtaining all required credentials
+- **[Installation Guide](INSTALLATION.md)** - Setup instructions
+- **[Usage Guide](USAGE.md)** - How to run the tool
+
 ## Configuration File
 
 The application uses a YAML configuration file (default: `config.yaml`). See [config.example.yaml](../config.example.yaml) for a complete example.
@@ -20,6 +25,8 @@ oauth2:
 - `client_id`: Your Challonge OAuth2 client ID
 - `client_secret`: Your Challonge OAuth2 client secret
 
+**ℹ️ Need these?** See [Credentials Guide - Challonge OAuth2](CREDENTIALS.md#challonge-oauth2-credentials)
+
 **Optional fields:**
 - `token_url`: OAuth token endpoint (default: `https://api.challonge.com/oauth/token`)
 - `scope`: OAuth scopes (default: none)
@@ -34,6 +41,8 @@ challonge:
 
 **Required fields:**
 - `tournament`: Tournament slug (from URL: `challonge.com/SLUG`)
+
+**ℹ️ Need this?** See [Credentials Guide - Tournament Slug](CREDENTIALS.md#getting-your-challonge-tournament-slug)
 
 **Optional fields:**
 - `subdomain`: Organization subdomain (e.g., for `myorg.challonge.com/tournament`, use `myorg`)
@@ -50,9 +59,14 @@ discord:
   channel_id: 123456789012345678
 ```
 
+**ℹ️ Need these?** See [Credentials Guide - Discord Setup](CREDENTIALS.md#discord-bot-token)
+```
+
 **Required fields:**
 - `bot_token`: Your Discord bot token
 - `channel_id`: Discord channel ID where threads will be created
+
+**ℹ️ Need these?** See [Credentials Guide - Discord Bot Token](CREDENTIALS.md#discord-bot-token) and [Channel ID](CREDENTIALS.md#discord-channel-id)
 
 **Optional fields:**
 - `thread_archive_minutes`: Auto-archive after N minutes (default: `10080` = 7 days)
@@ -76,7 +90,23 @@ runner_map:
 **How it works:**
 - If a player's Challonge username matches a key in `runner_map`, they'll be mentioned with their Discord ID
 - If no match, their Challonge username will be used without mention
-- Discord IDs can be found by right-clicking a user (with Developer Mode enabled)
+
+**ℹ️ Need user IDs?** See [Credentials Guide - Discord User IDs](CREDENTIALS.md#discord-user-ids-for-player-mapping)
+
+### Discord Role Mentions
+
+Tag specific roles in thread messages:
+
+```yaml
+discord:
+  role_ids_to_tag:
+    - 234567890123456789    # @Tournament Admins
+    - 345678901234567890    # @Commentators
+```
+
+Then use `{role_mentions}` in your message template.
+
+**ℹ️ Need role IDs?** See [Credentials Guide - Discord Role IDs](CREDENTIALS.md#discord-role-ids)
 
 ### Custom Templates
 
