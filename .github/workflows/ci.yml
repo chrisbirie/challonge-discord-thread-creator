@@ -118,7 +118,7 @@ jobs:
           pip install pytest pytest-asyncio pytest-cov
       
       - name: Run tests with coverage
-        run: pytest tests/ --cov=src/tourney_threads --cov-report=xml --cov-report=term --cov-fail-under=95 -v
+        run: pytest tests/ --cov=src/tourney_threads --cov-report=xml --cov-report=term --cov-fail-under=99 -v
       
       - name: Upload coverage to Codecov
         if: matrix.python-version == '3.11'

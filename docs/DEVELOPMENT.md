@@ -102,7 +102,7 @@ pytest
 ### Run with Coverage
 
 ```bash
-pytest --cov=tourney_threads --cov-report=html
+pytest --cov=src/tourney_threads --cov-report=html
 ```
 
 View coverage report:
@@ -115,6 +115,32 @@ open htmlcov/index.html
 
 # On Linux:
 xdg-open htmlcov/index.html
+```
+
+### Coverage Requirements
+
+⚠️ **The CI enforces a minimum of 99% test coverage.** 
+
+When you submit a PR:
+- All existing tests must pass
+- New code must be tested
+- Overall coverage must not drop below 99%
+- If coverage drops, you need to add tests for your new code
+
+To check locally before pushing:
+```bash
+# Run tests with coverage threshold
+pytest --cov=src/tourney_threads --cov-fail-under=99
+```
+
+If you see coverage below 99%:
+```bash
+# See which lines are not covered
+pytest --cov=src/tourney_threads --cov-report=term-missing
+
+# Or generate an HTML report to visualize gaps
+pytest --cov=src/tourney_threads --cov-report=html
+open htmlcov/index.html
 ```
 
 ### Run Specific Test Categories
