@@ -220,8 +220,8 @@ class TestDiscordThreadManager:
 
     def test_normalize_archive_minutes_invalid_fallback_to_default(self):
         """Test _normalize_archive_minutes with invalid value, DEFAULT is valid."""
-        from tourney_threads.discord_client.thread_manager import DiscordThreadManager
         from tourney_threads.config.constants import DEFAULT_THREAD_ARCHIVE_MINUTES
+        from tourney_threads.discord_client.thread_manager import DiscordThreadManager
 
         config = {"discord": {}}
         manager = DiscordThreadManager(config)
