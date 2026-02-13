@@ -156,6 +156,10 @@ challonge:
             mock_parse_args.assert_called_once()
             # Verify asyncio.run was called
             mock_asyncio_run.assert_called_once()
+            # Close coroutine passed to asyncio.run to avoid unawaited warnings
+            coro = mock_asyncio_run.call_args[0][0]
+            if hasattr(coro, "close"):
+                coro.close()
 
     def test_cli_if_name_main(self):
         """Test CLI if __name__ == '__main__' block by running as module."""

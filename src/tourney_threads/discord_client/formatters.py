@@ -28,7 +28,7 @@ def format_thread_name(
     Returns:
         Formatted thread name string.
     """
-    template = config.get("thread_name_template", DEFAULT_THREAD_NAME_TEMPLATE)
+    template = str(config.get("thread_name_template", DEFAULT_THREAD_NAME_TEMPLATE))
     round_label = make_round_label(match.round, stage_name, config)
 
     # Get tournament name from config
@@ -77,7 +77,7 @@ def format_thread_message(
     Returns:
         Formatted message string.
     """
-    template = config.get("message_template", DEFAULT_MESSAGE_TEMPLATE)
+    template = str(config.get("message_template", DEFAULT_MESSAGE_TEMPLATE))
     round_label = make_round_label(match.round, stage_name, config)
 
     # Get tournament name from config
@@ -118,7 +118,10 @@ def print_dry_run(matches: list, stage_name: str | None, config: dict[str, Any])
         config: Configuration dictionary.
     """
     discord_cfg = config.get("discord", {}) or {}
-    role_mentions = build_role_mentions(discord_cfg.get("role_ids_to_tag"))
+    role_ids = discord_cfg.get("role_ids_to_tag")
+    if not isinstance(role_ids, list):
+        role_ids = []
+    role_mentions = build_role_mentions(role_ids)
 
     if not matches:
         print("=== DRY RUN ===\n(No matches to show)\n=== END DRY RUN ===")

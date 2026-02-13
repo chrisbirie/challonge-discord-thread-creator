@@ -3,7 +3,7 @@
 This module provides functionality for creating Discord threads for tournament matches.
 """
 
-from typing import Any
+from typing import Any, Literal, cast
 
 import discord
 from discord import AllowedMentions
@@ -62,7 +62,12 @@ class DiscordThreadManager:
         archive_minutes = int(
             self.discord_cfg.get("thread_archive_minutes", DEFAULT_THREAD_ARCHIVE_MINUTES)
         )
-        role_mentions = build_role_mentions(self.discord_cfg.get("role_ids_to_tag"))
+        role_ids = self.discord_cfg.get("role_ids_to_tag")
+        if not isinstance(role_ids, list):
+            role_ids = []
+        role_mentions = build_role_mentions(role_ids)
+
+        archive_minutes_literal = self._normalize_archive_minutes(archive_minutes)
 
         intents = discord.Intents.default()
         intents.guilds = True
@@ -80,10 +85,11 @@ class DiscordThreadManager:
                 if channel is None:
                     channel = await client.fetch_channel(channel_id)
 
-                if channel is None or channel.type != ChannelType.text:
+                if channel is None or getattr(channel, "type", None) != ChannelType.text:
                     print("ERROR: channel_id does not refer to a text channel.")
                     await client.close()
                     return
+                text_channel = cast(discord.TextChannel, channel)
 
                 # Create threads for each match
                 for match in matches:
@@ -99,9 +105,9 @@ class DiscordThreadManager:
                         thread_name = thread_name[:MAX_THREAD_NAME_LENGTH]
 
                         # Create the thread
-                        thread = await channel.create_thread(
+                        thread = await text_channel.create_thread(
                             name=thread_name,
-                            auto_archive_duration=archive_minutes,
+                            auto_archive_duration=archive_minutes_literal,
                             type=ChannelType.public_thread,
                         )
 
@@ -122,3 +128,12 @@ class DiscordThreadManager:
 
         await client.start(bot_token)
         return created_count
+
+    @staticmethod
+    def _normalize_archive_minutes(value: int) -> Literal[60, 1440, 4320, 10080]:
+        allowed = (60, 1440, 4320, 10080)
+        if value not in allowed:
+            value = DEFAULT_THREAD_ARCHIVE_MINUTES
+        if value not in allowed:
+            value = 10080
+        return cast(Literal[60, 1440, 4320, 10080], value)

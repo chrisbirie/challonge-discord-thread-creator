@@ -1,6 +1,5 @@
 """Tests for round labeling utilities."""
 
-
 from tourney_threads.utils.rounds import make_round_label
 
 

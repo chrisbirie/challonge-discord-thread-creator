@@ -1,6 +1,5 @@
 """Tests for print/display functions and formatters."""
 
-
 from tourney_threads.api.models import Match, Participant
 from tourney_threads.discord_client.formatters import (
     format_thread_message,

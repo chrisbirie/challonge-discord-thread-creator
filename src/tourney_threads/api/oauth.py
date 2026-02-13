@@ -3,7 +3,6 @@
 This module provides OAuth2 client credentials flow authentication.
 """
 
-
 import aiohttp
 
 
@@ -70,9 +69,9 @@ class OAuthClient:
                 raise RuntimeError(f"OAuth token request failed ({resp.status}): {text[:500]}")
             payload = await resp.json()
 
-        token = payload.get("access_token")
-        if not token:
+        token_value = payload.get("access_token")
+        if not isinstance(token_value, str) or not token_value:
             raise RuntimeError("OAuth token response missing access_token")
 
-        self._token = token
-        return token
+        self._token = token_value
+        return token_value

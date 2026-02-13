@@ -54,7 +54,7 @@ def mention_for_name(name: str, runner_map: dict[str, int]) -> str:
     return f"<@{user_id}>" if user_id else name
 
 
-def build_role_mentions(role_ids: list = None) -> str:
+def build_role_mentions(role_ids: list[int] | None = None) -> str:
     """Build Discord role mention strings from role IDs.
 
     Args:

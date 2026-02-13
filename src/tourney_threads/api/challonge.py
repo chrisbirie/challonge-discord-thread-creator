@@ -84,7 +84,7 @@ class ChallongeAPIClient:
         self,
         tournament_override: str | None = None,
         runner_map: dict[str, int] | None = None,
-    ) -> tuple[list[Match], str | None]:
+    ) -> tuple[list[Match], dict[str, dict]]:
         """Fetch matches and participants from Challonge API.
 
         Args:
@@ -169,7 +169,7 @@ class ChallongeAPIClient:
         for m in matches_data:
             match_id = str(m.get("id"))
             attrs = m.get("attributes") or {}
-            state = attrs.get("state")
+            state = str(attrs.get("state") or "unknown")
             round_num = attrs.get("round")
 
             rels = m.get("relationships") or {}

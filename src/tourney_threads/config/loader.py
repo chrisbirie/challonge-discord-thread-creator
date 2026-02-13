@@ -2,7 +2,7 @@
 
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 
 def load_config(path: str) -> dict[str, Any]:

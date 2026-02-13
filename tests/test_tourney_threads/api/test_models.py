@@ -1,6 +1,5 @@
 """Tests for data models."""
 
-
 from tourney_threads.api.models import Match, Participant
 
 

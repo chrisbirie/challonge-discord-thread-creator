@@ -1,6 +1,5 @@
 """Tests for name cleaning and mention utilities."""
 
-
 from tourney_threads.utils.names import (
     build_role_mentions,
     clean_runner_name,
