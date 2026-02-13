@@ -6,7 +6,9 @@ This module provides utilities for generating human-readable round labels.
 from typing import Any
 
 
-def make_round_label(round_value: int | str | None, stage_name: str | None, config: dict[str, Any]) -> str:
+def make_round_label(
+    round_value: int | str | None, stage_name: str | None, config: dict[str, Any]
+) -> str:
     """Generate a human-readable round label.
 
     If config contains 'round_label_template', formats it with:
@@ -27,10 +29,13 @@ def make_round_label(round_value: int | str | None, stage_name: str | None, conf
     Returns:
         Formatted round label string.
     """
-    try:
-        round_int = int(round_value)
-    except (ValueError, TypeError):
+    if round_value is None:
         round_int = 0
+    else:
+        try:
+            round_int = int(round_value)
+        except (ValueError, TypeError):
+            round_int = 0
 
     # Determine bracket type
     bracket = "Round"

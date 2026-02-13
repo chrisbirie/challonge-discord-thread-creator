@@ -2,7 +2,7 @@
 
 # Challonge API constants
 DEFAULT_API_BASE_URL = "https://api.challonge.com/v2.1"
-DEFAULT_TOKEN_URL = "https://api.challonge.com/oauth/token"
+DEFAULT_TOKEN_URL = "https://api.challonge.com/oauth/token"  # nosec B105
 DEFAULT_PATH_SUFFIX = ".json"
 
 # Default templates for thread creation
