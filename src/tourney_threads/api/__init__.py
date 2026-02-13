@@ -3,9 +3,9 @@
 This module provides OAuth authentication and Challonge API client functionality.
 """
 
-from .oauth import OAuthClient
 from .challonge import ChallongeAPIClient
-from .models import Participant, Match, MatchSummary
+from .models import Match, MatchSummary, Participant
+from .oauth import OAuthClient
 
 __all__ = [
     "OAuthClient",

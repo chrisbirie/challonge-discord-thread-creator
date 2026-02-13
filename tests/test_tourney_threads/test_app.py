@@ -1,34 +1,39 @@
 """Tests for version constants and entry points."""
 
-import pytest
-from unittest.mock import patch
 import subprocess
 import sys
+from unittest.mock import patch
 
 
 class TestVersionAndEntryPoints:
     """Test version constant and entry point functions."""
-    
+
     def test_version_import(self):
         """Test that version can be imported."""
         from tourney_threads.version import VERSION
+
         assert isinstance(VERSION, str)
         assert len(VERSION) > 0
-    
+
     def test_app_main_calls_cli(self):
         """Test that app.main() delegates to cli.main()."""
-        with patch('tourney_threads.app.main') as mock_main:
+        with patch("tourney_threads.app.main"):
             from tourney_threads import app
+
             # Just importing covers the if __name__ check
-            assert hasattr(app, 'main')
-    
+            assert hasattr(app, "main")
+
     def test_app_if_name_main_block(self):
         """Test app.py if __name__ == '__main__' block."""
+        from pathlib import Path
+
         # Run app.py as a script using python to trigger if __name__ == "__main__"
+        repo_root = Path(__file__).resolve().parents[2]
+        app_path = repo_root / "src" / "tourney_threads" / "app.py"
         result = subprocess.run(
-            [sys.executable, r'C:\devl\tourney_threads\src\tourney_threads\app.py', '--help'],
+            [sys.executable, str(app_path), "--help"],
             capture_output=True,
-            timeout=2
+            timeout=2,
         )
         # Will get import error due to relative imports, but that's expected
         # We're just verifying the if __name__ block doesn't crash Python

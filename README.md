@@ -1,382 +1,222 @@
 # Tourney Threads Bot (Challonge ➜ Discord)
 
-Create Discord threads for tournament matchups pulled from Challonge v2.1 API. This tool automatically fetches matches from a tournament and creates Discord threads for scheduling and communication.
+Automatically create Discord threads for tournament matchups from Challonge. Fetch matches via the Challonge v2.1 API and generate organized Discord threads for player coordination.
 
 ## Features
 
-- **OAuth2 Authentication**: Secure client credentials flow with Challonge API
-- **Stage Detection**: Automatically detects Swiss, Groups, or Elimination stages
-- **Customizable Templates**: Configure thread names and messages with template variables
-- **Dry-run Mode**: Preview threads before creating them
-- **Discord Mentions**: Map Challonge usernames to Discord user IDs for @mentions
-- **Role Tagging**: Automatically tag Discord roles in thread messages
-- **Pagination Support**: Configure page size and filters for match retrieval
+- 🔐 **OAuth2 Authentication** - Secure integration with Challonge API
+- 🎯 **Stage Detection** - Automatically detects Swiss, Groups, or Elimination formats
+- ✏️ **Customizable Templates** - Configure thread names and messages with variables
+- 👀 **Dry-run Mode** - Preview threads before creating them
+- 💬 **Discord Mentions** - Tag players and roles in threads
+- 📄 **Pagination Support** - Handle large tournaments efficiently
 
 ## Quick Start
 
-### Prerequisites
-
-- Python 3.10+ recommended
-- Discord bot with appropriate permissions (create threads, mention roles)
-- Challonge API OAuth2 credentials
-
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd tourney_threads
-```
-
-2. Create and activate a virtual environment (recommended):
-```bash
-# Create virtual environment
-python -m venv .venv
-
-# Activate on Windows
-.venv\Scripts\activate
-
-# Activate on macOS/Linux
-source .venv/bin/activate
-```
-
-3. Install the package in development mode:
-```bash
+# 1. Install
+git clone https://github.com/chrisbirie/challonge-discord-thread-creator.git
+cd challonge-discord-thread-creator
 pip install -e .
-```
 
-This installs the package and all dependencies, making the `tourney-threads` command available.
-
-4. Configure the application:
-```bash
+# 2. Configure
 cp config.example.yaml config.yaml
 # Edit config.yaml with your credentials
-```
 
-5. Run a dry-run to preview:
-```bash
+# 3. Preview
 tourney-threads --dry-run
-```
 
-6. Create threads:
-```bash
+# 4. Create threads
 tourney-threads
 ```
 
-**Note:** If you haven't activated your virtual environment, use the full path:
+📚 **See the [Installation Guide](docs/INSTALLATION.md) for detailed setup instructions.**
+
+## Documentation
+
+📚 **Complete documentation is available in the [docs/](docs/) directory:**
+
+- **[Installation Guide](docs/INSTALLATION.md)** - Detailed setup, prerequisites, Discord/Challonge configuration
+- **[Configuration Reference](docs/CONFIGURATION.md)** - Complete guide to all config options with examples
+- **[Usage Guide](docs/USAGE.md)** - CLI reference, common workflows, automation
+- **[Template Variables](docs/TEMPLATES.md)** - Customize thread names and messages
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Common issues and solutions
+- **[Development Guide](docs/DEVELOPMENT.md)** - Contributing, testing, code quality
+
+## Basic Usage
+
 ```bash
-# Windows
-.venv\Scripts\tourney-threads.exe --dry-run
-
-# macOS/Linux
-.venv/bin/tourney-threads --dry-run
-```
-
-## CLI Usage
-
-```bash
-tourney-threads [OPTIONS]
-```
-
-### Command Line Options
-
-| Option | Description | Default | Example |
-|--------|-------------|---------|---------|
-| `--config <path>` | Path to YAML configuration file | `config.yaml` | `--config prod.yaml` |
-| `--tournament <slug>` | Override tournament slug from config file | From config | `--tournament my-event-2026` |
-| `--debug` | Print raw JSON API responses and match summary | Disabled | `--debug` |
-| `--dry-run` | Preview threads without creating them on Discord | Disabled | `--dry-run` |
-
-### Most Common Commands
-
-#### 1. Preview Before Creating (Recommended First Step)
-```bash
+# Preview threads without creating them
 tourney-threads --dry-run
-```
-**What it does:** Shows exactly what threads would be created without actually posting to Discord. Perfect for verifying your configuration and seeing what the output will look like.
 
-**Example output:**
-```
-=== DRY RUN: Would create 8 threads ===
-Thread: "Winners R1: Alice vs Bob"
-Message: Hi @Alice vs @Bob! This is your scheduling thread for Winners R1.
----
-Thread: "Winners R1: Charlie vs Dana"
-Message: Hi @Charlie vs @Dana! This is your scheduling thread for Winners R1.
-...
-```
-
-#### 2. Create Threads (Production)
-```bash
+# Create threads for a tournament
 tourney-threads
-```
-**What it does:** Fetches matches from Challonge and creates Discord threads in the configured channel. This is the main production command after you've verified everything with `--dry-run`.
 
-#### 3. Debug API Issues
-```bash
+# Use a different config file
+tourney-threads --config prod.yaml
+
+# Override tournament from config
+tourney-threads --tournament my-event-2026
+
+# Debug mode (shows API responses)
 tourney-threads --debug --dry-run
 ```
-**What it does:** Shows detailed API responses and match data structure. Use this when:
-- Troubleshooting API authentication issues
-- Verifying match data is being fetched correctly
-- Understanding the tournament structure (Swiss vs Elimination, etc.)
 
-**Example output:**
-```
-=== API Response (raw JSON) ===
-{"data": [{"type": "match", "id": "12345", ...}], "included": [...]}
-
-=== Match Summary ===
-Found 8 matches:
-- Match #1: Alice vs Bob (Round 1, Winners)
-- Match #2: Charlie vs Dana (Round 1, Winners)
-...
-```
-
-#### 4. Override Tournament
-```bash
-tourney-threads --tournament winter-championship-2026
-```
-**What it does:** Uses a different tournament than specified in `config.yaml`. Useful for:
-- Managing multiple tournaments with the same config file
-- Quick testing with different tournaments
-- Running automated scripts across multiple events
-
-#### 5. Use Custom Config File
-```bash
-tourney-threads --config production.yaml
-```
-**What it does:** Loads configuration from a different file. Useful for:
-- Separate development and production configurations
-- Managing multiple Discord servers or tournaments
-- Testing configuration changes without modifying your main config
-
-### Advanced Usage Examples
-
-#### Test new tournament with debug info
-```bash
-tourney-threads --tournament new-event --debug --dry-run
-```
-Shows API data and thread preview for a different tournament.
-
-#### Production deployment with custom config
-```bash
-tourney-threads --config /etc/tourney/prod.yaml
-```
-Uses absolute path to configuration file for production deployments.
-
-#### Combine all options for maximum verbosity
-```bash
-tourney-threads --config test.yaml --tournament debug-tourney --debug --dry-run
-```
-Perfect for comprehensive testing and troubleshooting.
-
-### Workflow Recommendations
-
-**First time setup:**
-```bash
-# 1. Copy example config
-cp config.example.yaml config.yaml
-
-# 2. Edit config.yaml with your credentials
-# (Add your OAuth tokens, Discord bot token, tournament slug, etc.)
-
-# 3. Test with dry-run
-tourney-threads --dry-run
-
-# 4. Add --debug if something looks wrong
-tourney-threads --debug --dry-run
-
-# 5. Create threads once everything looks good
-tourney-threads
-```
-
-**Regular tournament operation:**
-```bash
-# Preview threads before each round
-tourney-threads --dry-run
-
-# Create threads when ready
-tourney-threads
-```
-
-**Managing multiple tournaments:**
-```bash
-# Preview tournament A
-tourney-threads --tournament event-a --dry-run
-
-# Create threads for tournament A
-tourney-threads --tournament event-a
-
-# Switch to tournament B
-tourney-threads --tournament event-b --dry-run
-tourney-threads --tournament event-b
-```
+📘 **See the [Usage Guide](docs/USAGE.md) for detailed examples and workflows.**
 
 ## Configuration
 
-See [config.example.yaml](config.example.yaml) for a complete example. Place your configuration in `config.yaml`.
+The tool uses a YAML configuration file (default: `config.yaml`). See [config.example.yaml](config.example.yaml) for a complete example.
 
-### Required Settings
+### Minimal Configuration
 
-#### OAuth2 (Challonge API)
 ```yaml
 oauth2:
   client_id: "your_client_id"
   client_secret: "your_client_secret"
-  token_url: "https://api.challonge.com/oauth/token"  # optional
-  scope: null  # optional
-  path_suffix: ".json"  # optional
-```
 
-#### Challonge Tournament
-```yaml
 challonge:
   tournament: "your-tournament-slug"
-  subdomain: ""  # optional, for organization tournaments
-  base_url: "https://api.challonge.com/v2.1"  # optional
-  page: 1  # pagination
-  per_page: 25  # matches per page
-  state: "open"  # optional: open, pending, complete, all
-```
 
-#### Discord (not needed for dry-run)
-```yaml
 discord:
   bot_token: "your_bot_token"
-  channel_id: 123456789  # text channel ID where threads will be created
-  thread_archive_minutes: 10080  # 7 days
-  role_ids_to_tag:  # optional
-    - 987654321
+  channel_id: 123456789012345678
 ```
 
-### Optional Settings
+### Optional Customization
 
-#### Runner Mapping (for Discord mentions)
 ```yaml
+# Map Challonge usernames to Discord user IDs
 runner_map:
-  "ChallongeUsername": 123456789  # Discord user ID
-  "AnotherPlayer": 987654321
-```
+  "ChallongeUsername": 123456789012345678
 
-#### Custom Templates
-```yaml
-# Thread name template (truncated to 100 chars)
+# Customize thread names and messages
 thread_name_template: "{round_label}: {p1_name} vs {p2_name}"
-
-# Initial message template
 message_template: |
-  Hi {p1_mention} vs {p2_mention}! {role_mentions}
+  Hi {p1_mention} vs {p2_mention}!
   This is your scheduling thread for {round_label}.
 
-# Custom round label template (optional)
-round_label_template: "{stage} - {bracket} Round {abs_round}"
+# Filter matches by state
+challonge:
+  state: "open"  # open, pending, complete, or all
 ```
 
-**Template Variables:**
-
-*Player Information:*
-- `{p1_name}`, `{p2_name}`: Player usernames (or "TBD" if not set)
-- `{p1_mention}`, `{p2_mention}`: Discord mentions (<@user_id>) or usernames if no mapping
-
-*Round Information:*
-- `{round_label}`: Full round label (e.g., "Winners R1", "Swiss R3", "Losers R2")
-- `{stage}`: Tournament stage type ("Swiss", "Groups", "Elimination", or empty)
-- `{bracket}`: Bracket name ("Winners", "Losers", or "Round")
-- `{round}`: Raw round number from Challonge (positive for winners, negative for losers)
-- `{abs_round}`: Absolute round number (always positive)
-
-*Match Information:*
-- `{match_id}`: Challonge match ID (useful for reference/tracking)
-- `{match_state}`: Match status ("open", "pending", "complete")
-- `{match_url}`: Direct link to match on Challonge (e.g., "https://challonge.com/tournament/matches/12345")
-- `{tournament_name}`: Tournament slug from your config
-
-*Other:*
-- `{role_mentions}`: Space-separated Discord role mentions (e.g., "<@&123> <@&456>")
-
-## Project Structure
-
-The codebase is organized into the following modules:
-
-```
-src/tourney_threads/
-├── api/                    # Challonge API integration
-│   ├── __init__.py
-│   ├── oauth.py           # OAuth2 authentication
-│   ├── challonge.py       # API client
-│   └── models.py          # Match and Participant dataclasses
-├── discord_client/        # Discord integration
-│   ├── __init__.py
-│   ├── thread_manager.py  # Thread creation logic
-│   └── formatters.py      # Template formatting
-├── utils/                 # Utilities
-│   ├── __init__.py
-│   ├── names.py          # Name cleaning and mentions
-│   └── rounds.py         # Round labeling
-├── config/               # Configuration handling
-│   ├── __init__.py
-│   ├── constants.py      # Default values
-│   └── loader.py         # Config loading and validation
-├── app.py               # Main entry point
-├── cli.py               # Command-line interface
-└── version.py           # Version info
-```
+📖 **See the [Configuration Reference](docs/CONFIGURATION.md) for all available options.**  
+✏️ **See the [Template Variables](docs/TEMPLATES.md) for customization options.**
 
 ## Development
 
-### Running Tests
+### Quick Start
 
 ```bash
-# Run all tests
+# Clone and install
+git clone https://github.com/chrisbirie/challonge-discord-thread-creator.git
+cd challonge-discord-thread-creator
+pip install -e ".[dev]"
+
+# Run tests
 pytest
 
-# Run with verbose output
-pytest -v
-
-# Run specific test file
-pytest tests/test_logic.py
-
-# Run with coverage
-pytest --cov=tourney_threads
+# Run linting and formatting
+black src tests
+ruff check src tests
+mypy src
 ```
 
-### Code Style
+### Testing
 
-The project uses:
-- **Type hints** throughout for better IDE support
-- **Dataclasses** for structured data (Match, Participant)
-- **Google-style docstrings** for documentation
-- **Modular architecture** for maintainability
+```bash
+# Run all tests with coverage
+pytest --cov=tourney_threads --cov-report=html
 
-## Notes
+# Run specific test categories
+pytest tests/test_tourney_threads/integration/
+pytest tests/test_tourney_threads/e2e/
+```
 
-- For double-elimination tournaments, losers bracket rounds use negative integers
-- The `(invitation pending)` suffix is automatically removed from participant names
-- Thread names are automatically truncated to Discord's 100-character limit
-- Error handling includes per-thread try-catch to prevent cascading failures
-- Stage detection is best-effort; falls back gracefully if detection fails
+**Test Coverage:** 99% (115 tests)
+
+### CI/CD
+
+GitHub Actions automatically runs on all PRs and commits to `main`:
+- ✅ Code Quality (Ruff, Black, isort, MyPy)
+- ✅ Security (Bandit, Safety)
+- ✅ Tests (Python 3.10, 3.11, 3.12)
+- ✅ Build validation
+- ✅ Integration tests
+
+📘 **See the [Development Guide](docs/DEVELOPMENT.md) for detailed information on contributing, testing, and code quality standards.**
 
 ## Troubleshooting
 
-### Configuration Errors
+### Quick Fixes
 
-If you see `ValueError: Missing required oauth2.client_id`:
-- Ensure your `config.yaml` has all required fields
-- Check for typos in configuration keys
+**Configuration errors:**
+```bash
+# Verify YAML syntax
+python -c "import yaml; print(yaml.safe_load(open('config.yaml')))"
 
-### API Errors
+# Check for missing required fields
+tourney-threads --debug --dry-run
+```
 
-If you see `RuntimeError: OAuth token request failed`:
-- Verify your client_id and client_secret are correct
-- Check that your OAuth application is active in Challonge
+**API issues:**
+```bash
+# Test OAuth credentials
+tourney-threads --debug --dry-run
 
-### Discord Errors
+# Check tournament slug
+# From URL: https://challonge.com/my-tournament
+# Slug is: my-tournament
+```
 
-If threads aren't being created:
-- Verify the bot has "Create Public Threads" permission
-- Ensure the channel_id points to a text channel
-- Check that the bot is in the server
+**Discord issues:**
+- Ensure bot has "Create Public Threads" permission
+- Verify `channel_id` is a text channel
+- Check bot is in the Discord server
+
+🔧 **See the [Troubleshooting Guide](docs/TROUBLESHOOTING.md) for detailed solutions to common issues.**
+
+## Project Structure
+
+```
+challonge-discord-thread-creator/
+├── docs/                    # Documentation
+│   ├── INSTALLATION.md
+│   ├── CONFIGURATION.md
+│   ├── USAGE.md
+│   ├── TEMPLATES.md
+│   ├── TROUBLESHOOTING.md
+│   └── DEVELOPMENT.md
+├── src/tourney_threads/     # Main source code
+│   ├── app.py              # Application logic
+│   └── version.py
+├── tests/                   # Test suite (99% coverage)
+│   └── test_tourney_threads/
+│       ├── api/
+│       ├── config/
+│       ├── discord_client/
+│       ├── utils/
+│       ├── integration/
+│       └── e2e/
+├── config.example.yaml      # Example configuration
+├── pyproject.toml          # Project metadata
+└── README.md               # This file
+```
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Make your changes and add tests
+4. Run tests and linting: `pytest && black src tests && ruff check src tests`
+5. Commit: `git commit -m "feat: add new feature"`
+6. Push and create a Pull Request
+
+📖 **See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines.**  
+🛠️ **See the [Development Guide](docs/DEVELOPMENT.md) for development setup and workflows.**
 
 ## License
 
