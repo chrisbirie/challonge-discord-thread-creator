@@ -84,7 +84,7 @@ class ChallongeAPIClient:
         self,
         tournament_override: str | None = None,
         runner_map: dict[str, int] | None = None,
-    ) -> tuple[list[Match], dict[str, dict]]:
+    ) -> tuple[list[Match], dict[str, dict[str, Any]]]:
         """Fetch matches and participants from Challonge API.
 
         Args:
@@ -137,7 +137,7 @@ class ChallongeAPIClient:
 
             # Parse matches and participants
             matches_data = payload.get("data") or []
-            participants_index: dict[str, dict] = {}
+            participants_index: dict[str, dict[str, Any]] = {}
 
             for inc in payload.get("included") or []:
                 if inc.get("type") == "participant":
@@ -151,7 +151,7 @@ class ChallongeAPIClient:
     def _parse_matches(
         self,
         matches_data: list[dict],
-        participants_index: dict[str, dict],
+        participants_index: dict[str, dict[str, Any]],
         runner_map: dict[str, int],
     ) -> list[Match]:
         """Parse raw match data into Match objects.
@@ -197,7 +197,7 @@ class ChallongeAPIClient:
     def _parse_participant(
         self,
         participant_id: str | None,
-        participants_index: dict[str, dict],
+        participants_index: dict[str, dict[str, Any]],
         runner_map: dict[str, int],
     ) -> Participant | None:
         """Parse participant data into Participant object.
