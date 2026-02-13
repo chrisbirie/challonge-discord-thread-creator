@@ -1,0 +1,59 @@
+# OAuth2 credentials for Challonge API v2.1
+oauth2:
+  client_id: "YOUR_CLIENT_ID"
+  client_secret: "YOUR_CLIENT_SECRET"
+  token_url: "https://api.challonge.com/oauth/token"  # optional, this is the default
+  scope: null  # optional, specify scopes if needed (e.g., "tournaments:read matches:read")
+  path_suffix: ".json"  # optional, this is the default
+
+# Challonge tournament configuration
+challonge:
+  tournament: "yourorg-yourtournament"  # the slug in the URL
+  subdomain: ""  # optional, for organization tournaments
+  base_url: "https://api.challonge.com/v2.1"  # optional, this is the default
+  page: 1  # pagination page number (default: 1)
+  per_page: 25  # matches per page (default: 25)
+  state: "open"  # optional: "open", "pending", "complete", "all"
+
+# Discord bot configuration (not needed for --dry-run)
+discord:
+  bot_token: "YOUR_DISCORD_BOT_TOKEN"
+  channel_id: 123456789012345678
+  role_ids_to_tag:  # optional, Discord role IDs to mention in threads
+    - 234567890123456789   # @Tournament Admins
+    - 345678901234567890   # @Restreamers
+  thread_archive_minutes: 10080  # auto-archive after this many minutes (default: 10080 = 7 days)
+
+# Map Challonge participant display names to Discord user IDs for mentions
+runner_map:
+  "RunnerA": 567890123456789012
+  "RunnerB": 678901234567890123
+
+# Custom template for thread names (optional, truncated to 100 chars)
+# Available variables:
+#   Player info: {p1_name}, {p2_name}, {p1_mention}, {p2_mention}
+#   Round info: {round_label}, {stage}, {bracket}, {round}, {abs_round}
+#   Match info: {match_id}, {match_state}, {match_url}, {tournament_name}
+#   Other: {role_mentions}
+thread_name_template: "{round_label}: {p1_name} vs {p2_name}"
+
+# Templated message posted inside each thread (optional)
+# Available variables:
+#   Player info: {p1_name}, {p2_name}, {p1_mention}, {p2_mention}
+#   Round info: {round_label}, {stage}, {bracket}, {round}, {abs_round}
+#   Match info: {match_id}, {match_state}, {match_url}, {tournament_name}
+#   Other: {role_mentions}
+message_template: |
+  Hi {p1_mention} vs {p2_mention}! {role_mentions}
+
+  Please coordinate here to schedule your match for **{round_label}**.
+  Share a few time windows in your local time. Once you agree on a time, please:
+  • Post the agreed date/time (include timezone)
+  • Tag an admin to confirm
+  • Share your stream link if applicable
+
+  Good luck and have fun!
+
+# Custom template for round labels (optional)
+# Available variables: {stage}, {bracket}, {round}, {abs_round}
+# round_label_template: "{stage} - {bracket} Round {abs_round}"
