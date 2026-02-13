@@ -49,6 +49,8 @@ jobs:
   security:
     name: Security Checks
     runs-on: ubuntu-latest
+    env:
+      SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       
@@ -68,8 +70,13 @@ jobs:
         continue-on-error: false
       
       - name: Check for known vulnerabilities (safety)
-        run: safety scan --json
+        if: ${{ env.SAFETY_API_KEY != '' }}
+        run: safety scan --json --key "$SAFETY_API_KEY"
         continue-on-error: false
+
+      - name: Skip safety scan (no API key)
+        if: ${{ env.SAFETY_API_KEY == '' }}
+        run: echo "SAFETY_API_KEY not set; skipping safety scan."
       
       - name: Upload security reports
         if: always()
