@@ -30,6 +30,13 @@ config.yaml
 .coverage
 htmlcov/
 .tox/
+coverage.xml
+.mypy_cache/
+.ruff_cache/
+
+# Security & Linting Reports
+bandit*.json
+.safety-project.ini
 
 # OS
 .DS_Store
